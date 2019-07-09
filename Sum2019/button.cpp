@@ -1,6 +1,7 @@
 #include "button.h"
 #include <SFML/Graphics.hpp>
 
+using namespace sf;
 
 button::button(String File, float x, float y)
 {

@@ -1,5 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
-
+//#include <map>
 #include <assert.h>
 #include <cstdlib> // 
 #include <ctime> // ��� ������� time()
@@ -7,8 +7,8 @@
 #include <cstring>
 #include <string.h>
 #include <stdio.h>
-
 #include <dos.h>
+
 
 #include <SFML/Graphics.hpp>
 
@@ -20,12 +20,19 @@
 #include "unit.h"
 #include "button.h"
 #include "scene.h"
+//#include "res_data.h"
 
 using namespace std;
 using namespace sf;
 
-
-
+bool btrue(bool * r, int n){
+		for (int i = 0; i < n; i++)
+		{
+			if (r[i] != true)
+				return false;
+		}
+		return true;
+}
 bool left_eye_b = false;
 bool right_eye_b = false;
 
@@ -127,7 +134,7 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 	
 	
 	int count_ball = 4; // КОЛВО ИГР 
-	//int count_game = 5; // КОЛВО ИГР 
+	int count_game = 5; // КОЛВО ИГР 
 
 	int* first_n   = new int[count_ball]; // число1 для задания 
 	int* second_n = new int[count_ball];	// число2 для задания 
@@ -141,46 +148,28 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 	bool* flag_game_wait_mouse = new bool[count_ball]; // ждем реакции с мышкой
 	bool* end_game = new bool[count_ball]; // завершение игры с опред кругом
 
-	for (int i = 0; i < count_ball; ++i) {
-		start[i] = 0;
-		end[i] = 0;
-		first_n[i] = 0;
-		second_n[i] = 0;
-		string[i] = "";
-		result_p[i] = false;
-		answer_r[i] = false;
-		flag_game_wait_mouse[i] = false;
-		answer_n[i] = false;
-		end_game[i] = false;
-	}
+	
 
-
+	
+	
 	const int eps = 0;
 
-	bool flag_game = true;
+	
 
 	CircleShape kursor(2);
 	kursor.setFillColor(sf::Color(0x00, 0x00, 0xff));
 	kursor.setPosition(0, 0);
-	int game_n = 0;
-
+	//int game_n = 0;
+	int start_time;
 	sf::Time t1 = sf::microseconds(5000000);
 	
 	sf::RenderWindow& windowN = window;
 	
 	button exit_button("exit.png", gameWidth - 25, 25);
 
-	//sf::CircleShape circle_game(100);
-	//circle_game.setFillColor(sf::Color(0xff, 0xff, 0xff));
-	//circle_game.setPosition(300, 100);
-
-	srand(static_cast<unsigned int>(time(0)));
 	CircleShape* circle_game = new CircleShape[count_ball];
-	for (int i = 0; i < count_ball; ++i) {		
-		circle_game[i].setRadius(60);
-		circle_game[i].setFillColor(sf::Color(0xff, 0xff, 0xff));
-		circle_game[i].setPosition(getRandomNumber(150*i +35, 150*(i+1)-35), getRandomNumber(0, 440));
-	}
+
+	sf::Text* answer = new Text[count_ball];
 
 	sf::CircleShape left_eye(20);
 	left_eye.setFillColor(sf::Color(0xff, 0xff, 0xff));
@@ -194,32 +183,56 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 	font.loadFromFile("resources/font/arial.ttf");
 	
 	sf::Text* text = new Text[count_ball];
+	
+	
+	start_time = clock();
+	bool game_end = false;
+	
 	for (int i = 0; i < count_ball; ++i) {
-		text[i].setFont(font);
-		text[i].setCharacterSize(24);
-		text[i].setFillColor(sf::Color::Green);
-		text[i].setStyle(sf::Text::Bold | sf::Text::Underlined);
-		text[i].setPosition(circle_game[i].getPosition().x - circle_game[i].getRadius()/2 , circle_game[i].getPosition().y + 2*circle_game[i].getRadius() +5);
+		start[i] = 0;
+		end[i] = 0;
+		first_n[i] = 0;
+		second_n[i] = 0;
+		string[i] = "";
+		result_p[i] = false;
+		answer_r[i] = false;
+		flag_game_wait_mouse[i] = false;
+		answer_n[i] = false;
+		end_game[i] = false;
+		cout << "FATAl!!!!!!!!!!!!!" << endl;
 	}
 
-	sf::Text* answer = new Text[count_ball];
+	bool flag_game = true;
+
+	srand(static_cast<unsigned int>(time(0)));
+
+	for (int i = 0; i < count_ball; ++i) {
+		circle_game[i].setRadius(60);
+		circle_game[i].setFillColor(sf::Color(0xff, 0xff, 0xff));
+		circle_game[i].setPosition(getRandomNumber(150 * i + 40, 150 * (i + 1) - 40), getRandomNumber(0, 440));
+	}
+
+		
 	for (int i = 0; i < count_ball; ++i) {
 		answer[i].setFont(font);
 		answer[i].setCharacterSize(24);
 		answer[i].setFillColor(sf::Color::Red);
 		answer[i].setStyle(sf::Text::Bold | sf::Text::Underlined);
-		answer[i].setPosition(circle_game[i].getPosition().x + circle_game[i].getRadius()/2 + 20, circle_game[i].getPosition().y + circle_game[i].getRadius() / 2 +20);
+		answer[i].setPosition(circle_game[i].getPosition().x + circle_game[i].getRadius() / 2 + 20, circle_game[i].getPosition().y + circle_game[i].getRadius() / 2 + 20);
+		answer[i].setString("");			
 	}
 
+	for (int i = 0; i < count_ball; ++i) {
+		text[i].setFont(font);
+		text[i].setCharacterSize(24);
+		text[i].setFillColor(sf::Color::Green);
+		text[i].setStyle(sf::Text::Bold | sf::Text::Underlined);
+		text[i].setPosition(circle_game[i].getPosition().x - circle_game[i].getRadius() / 2, circle_game[i].getPosition().y + 2 * circle_game[i].getRadius() + 5);
+		text[i].setString("");
+	}
 
-
-
-	
-	
 	while (window.isOpen())
 	{
-
-
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed)
@@ -227,7 +240,7 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 			if (event.type == sf::Event::MouseButtonPressed)
 			{
 				if (event.mouseButton.button == sf::Mouse::Left)
-				{				
+				{
 					if ((abs(event.mouseButton.x - exit_button.x) <= (exit_button.width / 2)) && (abs(event.mouseButton.y - exit_button.y) <= (exit_button.height / 2))) {
 						window.close();
 					}
@@ -235,8 +248,9 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 			}
 		}
 
-		srand(static_cast<unsigned int>(time(0)));
+		
 		window.clear();
+		srand(static_cast<unsigned int>(time(0)));
 		for (int i = 0; i < count_ball; i++) {
 			window.draw(circle_game[i]);
 			window.draw(text[i]);
@@ -244,16 +258,13 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 		}
 		window.draw(kursor);
 		window.draw(left_eye);
-		window.draw(right_eye);			
+		window.draw(right_eye);
 		window.draw(exit_button.sprite);
-		window.display();		
-		
+		window.display();
 		error = tobii_wait_for_callbacks(NULL, 1, &device);
 		assert(error == TOBII_ERROR_NO_ERROR || error == TOBII_ERROR_TIMED_OUT);
-
 		error = tobii_device_process_callbacks(device);
-		assert(error == TOBII_ERROR_NO_ERROR);		
-
+		assert(error == TOBII_ERROR_NO_ERROR);
 		
 		kursor.setPosition(coordinate[0] * gameHeight, coordinate[1] * gameWidth);
 
@@ -261,7 +272,6 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 			left_eye.setFillColor(sf::Color(0x00, 0xff, 0x00));
 		else
 			left_eye.setFillColor(sf::Color(0xff, 0x00, 0x00));
-
 		if (right_eye_b)
 			right_eye.setFillColor(sf::Color(0x00, 0xff, 0x00));
 		else
@@ -269,21 +279,17 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 
 
 		for (int i = 0; i < count_ball; i++) {
-			cout << coordinate[0] * gameHeight << "	" << (abs(abs(coordinate[0] * gameHeight) - circle_game[i].getPosition().x - circle_game[i].getRadius() < eps)) << "	" << coordinate[1] * gameWidth << "	" << (abs(abs(coordinate[1] * gameWidth) - circle_game[i].getPosition().y - circle_game[i].getRadius()) < eps) << endl;
 			if (!end_game[i]) {
-
-				//cout << circle_game[i].getPosition().x - eps << "	" << coordinate[0] * gameHeight << "	" << circle_game[i].getPosition().x + 2 * circle_game[i].getRadius() + eps << "   " << (circle_game[i].getPosition().x - eps < coordinate[0] * gameHeight < circle_game[i].getPosition().x + 2 * circle_game[i].getRadius() + eps) << endl;
-				//cout << circle_game[i].getPosition().y - eps << "	" << coordinate[1] * gameWidth << " 	" << circle_game[i].getPosition().y + 2 * circle_game[i].getRadius() + eps << "   " << (circle_game[i].getPosition().y - eps < coordinate[1] * gameHeight < circle_game[i].getPosition().y + 2 * circle_game[i].getRadius() + eps) << endl;
-				
-				if (circle_game[i].getPosition().x - eps < coordinate[0] * gameHeight 
-					&& circle_game[i].getPosition(). x + 2 * circle_game[i].getRadius() + eps
-					&& circle_game[i].getPosition().y - eps < coordinate[1] * gameWidth 
-					&& circle_game[i].getPosition().y + 2 * circle_game[i].getRadius() + eps
-					&& (left_eye_b || right_eye_b) 
+				if (
+					circle_game[i].getPosition().x - eps < coordinate[0] * gameHeight
+					&& circle_game[i].getPosition().y - eps < coordinate[1] * gameWidth
+					&& coordinate[0] * gameHeight < circle_game[i].getPosition().x + 2 * circle_game[i].getRadius() + eps
+					&& coordinate[1] * gameWidth < circle_game[i].getPosition().y + 2 * circle_game[i].getRadius() + eps
+					&& (left_eye_b || right_eye_b)
 					&& !flag_game_wait_mouse[i])
 				{
 					if (!start[i]) start[i] = timer;
-					end[i]=0;
+					end[i] = 0;
 					circle_game[i].setFillColor(sf::Color(0xff, 0xff, 0x00));
 				}
 				else {
@@ -293,95 +299,86 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 				}
 			}
 		}
-		
-		
+			
 		for (int i = 0; i < count_ball; i++) {
-			cout << "I'am here" << endl;
-			if (flag_game && (left_eye_b || right_eye_b)){
+			if (flag_game && (left_eye_b || right_eye_b)) {
 				first_n[i] = getRandomNumber(1, 200);
 				second_n[i] = getRandomNumber(1, 200);
-				//cout << first_n[i] << "   " << second_n << endl;
 				string[i] = to_string(first_n[i]);
 				string[i] += " - ";
 				string[i] += to_string(second_n[i]);
 				string[i] += " = ?";
-				//cout << string[i].toAnsiString() << endl;
-				text[i].setString(string[i]);			
+				text[i].setString(string[i]);
 			}
-			
-			//sleep(t1);
 		}
-		if (string[0] != "") flag_game = false;;
-
-		for (int i = 0; i < count_ball; i++) {
-				if (!end_game[i]) {
-					if (timer - start[i] > 500000 && start[i] && !answer_n[i]) { // смотрим более 0,5 сек
-						if (getRandomNumber(0, 1)) {// выбор,какой ответ появиться на круге правда/ложь
-							answer[i].setString(to_string(first_n - second_n));
-							answer_r[i] = true; // какой ответ
-							answer_n[i] = true;
-
-						}
-						else {
-							
-							int der = getRandomNumber(-100, 100);
-							while (!der) der = getRandomNumber(-100, 100); // исключаем 0				
-							answer[i].setString(to_string(first_n - second_n + der));
-							answer_r[i] = false;
-							answer_n[i] = true;
-						}
-						flag_game_wait_mouse[i] = true;
-					}
-				}
-				//cout << answer_r[i] << "	" << answer[i].setString() << " " < endl;
-			}
+		if (string[0] != "") flag_game = false;
 
 		for (int i = 0; i < count_ball; i++) {
 			if (!end_game[i]) {
-				if (timer - end[i] > 750000 && end[i] && answer_n[i]) { // смотрим более 0,5 сек
-					// выбор,какой ответ появиться на круге правда/ложь
+				if (abs(timer - start[i]) > 500000 && start[i] && !answer_n[i]) { 					
+					if (getRandomNumber(0, 1)) {
+						answer[i].setString(to_string(first_n[i] - second_n[i]));
+						answer_r[i] = true; 
+						answer_n[i] = true;
+						cout << answer_r[i] << endl;
+						//system("pause");
+					}
+					else {
+						int der = getRandomNumber(-100, 100);
+						while (!der) der = getRandomNumber(-100, 100); // исключаем 0				
+						answer[i].setString(to_string(first_n[i] - second_n[i] + der));
+						answer_r[i] = false;
+						answer_n[i] = true;
+						cout << answer_r[i] << endl;
+						//system("pause");
+						}
+
+					flag_game_wait_mouse[i] = true;
+				}
+		    }		
+		}
+
+		for (int i = 0; i < count_ball; i++) {
+			if (!end_game[i]) {
+				if (abs(timer - end[i]) > 750000 && end[i] && answer_n[i]) {
 					answer[i].setString("");
-					answer_n[i] = false;					
+					answer_n[i] = false;						
 					flag_game_wait_mouse[i] = false;
 				}
 			}
 		}
 
-	
-		for (int i = 0; i < count_ball; i++){
-				if (!end_game[i]) {
-					if (flag_game_wait_mouse[i]) {
-						cout << "MOUSE" << endl;
-						if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Right)) { // было ли вообще нажатие
-							if ((sf::Mouse::isButtonPressed(sf::Mouse::Left) && answer_r[i]) || (sf::Mouse::isButtonPressed(sf::Mouse::Right) && !answer_r[i])) {
-								circle_game[i].setFillColor(sf::Color(0x00, 0xff, 0x00));
-								result_p[i] = 1;
-								end_game[i] = true;
-							}
-							else {
-								circle_game[i].setFillColor(sf::Color(0xff, 0x00, 0x00));
-								result_p[i] = 0;
-								end_game[i] = true;
-							}
+
+		for (int i = 0; i < count_ball; i++) {
+			if (!end_game[i]) {
+				if (flag_game_wait_mouse[i]) {
+					cout << "MOUSE" << endl;
+					if (sf::Mouse::isButtonPressed(sf::Mouse::Left) || sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+						if ((sf::Mouse::isButtonPressed(sf::Mouse::Left) && answer_r[i]) || (sf::Mouse::isButtonPressed(sf::Mouse::Right) && !answer_r[i])) {
+							circle_game[i].setFillColor(sf::Color(0x00, 0x00, 0xff));
+							result_p[i] = 1;
+							end_game[i] = true;
+							cout << answer_r[i] << endl;
+							//system("pause");
+						}
+						else {
+							circle_game[i].setFillColor(sf::Color(0xff, 0x00, 0x00));
+							result_p[i] = 0;
+							end_game[i] = true;
+							//cout << answer_r[i] << endl;
+							//system("pause");							
 						}
 					}
 				}
-		}
-		/*for (int i = 0; i < count_ball; i++) {
-
-
-			if(i== count_ball-1){	
-				//result(event, windowN, result_p, result_n, (int64_t)(clock() - start));
-				break;
 			}
-		}*/
-		
+		}
 
-			
-		
-
+		if (btrue(end_game, count_ball) || clock() - start_time > 60 * 1000) {
+			game_end = true;
+		}
+		if (game_end) break;
 	}
-
+	
 	// END Code game //
 	error = tobii_eye_position_normalized_unsubscribe(device);
 	assert(error == TOBII_ERROR_NO_ERROR);

@@ -17,7 +17,7 @@ using namespace std;
 int main() {
 	sf::Event event;
 	sf::RenderWindow window(sf::VideoMode(gameWidth, gameHeight, 32), "Summer2019",
-		sf::Style::Titlebar | sf::Style::Close);
+		sf::Style::Fullscreen | sf::Style::Close);
 
 	//std::srand(static_cast<unsigned int>(std::time(NULL)));
 	Clock clock;
