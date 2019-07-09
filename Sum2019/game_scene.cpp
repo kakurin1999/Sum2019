@@ -42,6 +42,20 @@ float* right_eye_c = new float[3];
 
 int64_t timer;
 
+bool tmf(bool* r, int n) {
+	int f = 0;
+	int t = 0;
+	for (int i = 0; i < n; i++)
+	{
+		if (r[i] == true) t += 1;
+		else f += 1;
+	}
+	return t>f;
+}
+
+void reloader(bool* r,int n ,bool new_bool) {
+	for (int i=0; i <n-1)
+}
 
 int getRandomNumber(int min, int max)
 {
@@ -147,7 +161,9 @@ int game_scene(sf::Event event, sf::RenderWindow& window)
 	bool* answer_n = new bool[count_ball];	// ответ для это задания вообще существует(с генирирован)
 	bool* flag_game_wait_mouse = new bool[count_ball]; // ждем реакции с мышкой
 	bool* end_game = new bool[count_ball]; // завершение игры с опред кругом
-
+	bool gaze[10] = { false };
+	//float* leftd = new float[10];
+	//float* rightd = new float[10];
 
 
 
