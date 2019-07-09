@@ -106,7 +106,7 @@ static void url_receiver(char const* url, void* user_data)
 		strcpy(buffer, url);
 }
 
-int game_scene(sf::Event event, sf::RenderWindow &window) 
+int game_scene(sf::Event event, sf::RenderWindow& window)
 {
 	// connect device
 	tobii_api_t* api;
@@ -127,20 +127,20 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 
 	error = tobii_eye_position_normalized_subscribe(device, eye_position_callback, 0);
 	assert(error == TOBII_ERROR_NO_ERROR);
-	
+
 	cout << "All good!!!" << endl;
 
 	// START Code game //
-	
-	
+
+
 	int count_ball = 4; // КОЛВО ИГР 
 	int count_game = 5; // КОЛВО ИГР 
 
-	int* first_n   = new int[count_ball]; // число1 для задания 
+	int* first_n = new int[count_ball]; // число1 для задания 
 	int* second_n = new int[count_ball];	// число2 для задания 
 	int64_t* start = new int64_t[count_ball];
 	int64_t* end = new int64_t[count_ball];
-// хранит значения время начала зрительного контакта на круг
+	// хранит значения время начала зрительного контакта на круг
 	String* string = new String[count_ball];	// хранит текст задания
 	bool* result_p = new bool[count_ball];	// итоговый результат игры
 	bool* answer_r = new bool[count_ball];	// ответ на кругу верный/ложь
@@ -148,13 +148,13 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 	bool* flag_game_wait_mouse = new bool[count_ball]; // ждем реакции с мышкой
 	bool* end_game = new bool[count_ball]; // завершение игры с опред кругом
 
-	
 
-	
-	
-	const int eps = 0;
 
-	
+
+
+	const int eps = 20;
+
+
 
 	CircleShape kursor(2);
 	kursor.setFillColor(sf::Color(0x00, 0x00, 0xff));
@@ -162,9 +162,9 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 	//int game_n = 0;
 	int start_time;
 	sf::Time t1 = sf::microseconds(5000000);
-	
+
 	sf::RenderWindow& windowN = window;
-	
+
 	button exit_button("exit.png", gameWidth - 25, 25);
 
 	CircleShape* circle_game = new CircleShape[count_ball];
@@ -181,13 +181,13 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 
 	sf::Font font;
 	font.loadFromFile("resources/font/arial.ttf");
-	
+
 	sf::Text* text = new Text[count_ball];
-	
-	
+
+	for (int g = 0; g  <count_game; g++){
 	start_time = clock();
 	bool game_end = false;
-	
+
 	for (int i = 0; i < count_ball; ++i) {
 		start[i] = 0;
 		end[i] = 0;
@@ -212,14 +212,14 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 		circle_game[i].setPosition(getRandomNumber(150 * i + 40, 150 * (i + 1) - 40), getRandomNumber(0, 440));
 	}
 
-		
+
 	for (int i = 0; i < count_ball; ++i) {
 		answer[i].setFont(font);
 		answer[i].setCharacterSize(24);
 		answer[i].setFillColor(sf::Color::Red);
 		answer[i].setStyle(sf::Text::Bold | sf::Text::Underlined);
 		answer[i].setPosition(circle_game[i].getPosition().x + circle_game[i].getRadius() / 2 + 20, circle_game[i].getPosition().y + circle_game[i].getRadius() / 2 + 20);
-		answer[i].setString("");			
+		answer[i].setString("");
 	}
 
 	for (int i = 0; i < count_ball; ++i) {
@@ -230,7 +230,7 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 		text[i].setPosition(circle_game[i].getPosition().x - circle_game[i].getRadius() / 2, circle_game[i].getPosition().y + 2 * circle_game[i].getRadius() + 5);
 		text[i].setString("");
 	}
-
+	srand(static_cast<unsigned int>(time(0)));
 	while (window.isOpen())
 	{
 		while (window.pollEvent(event))
@@ -248,11 +248,12 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 			}
 		}
 
-		
+
 		window.clear();
-		srand(static_cast<unsigned int>(time(0)));
+		
 		for (int i = 0; i < count_ball; i++) {
 			window.draw(circle_game[i]);
+
 			window.draw(text[i]);
 			window.draw(answer[i]);
 		}
@@ -265,7 +266,7 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 		assert(error == TOBII_ERROR_NO_ERROR || error == TOBII_ERROR_TIMED_OUT);
 		error = tobii_device_process_callbacks(device);
 		assert(error == TOBII_ERROR_NO_ERROR);
-		
+		cout << timer << endl;
 		kursor.setPosition(coordinate[0] * gameHeight, coordinate[1] * gameWidth);
 
 		if (left_eye_b)
@@ -299,7 +300,7 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 				}
 			}
 		}
-			
+
 		for (int i = 0; i < count_ball; i++) {
 			if (flag_game && (left_eye_b || right_eye_b)) {
 				first_n[i] = getRandomNumber(1, 200);
@@ -315,10 +316,11 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 
 		for (int i = 0; i < count_ball; i++) {
 			if (!end_game[i]) {
-				if (abs(timer - start[i]) > 500000 && start[i] && !answer_n[i]) { 					
-					if (getRandomNumber(0, 1)) {
+				if (abs(timer - start[i]) > 500000 && start[i] && !answer_n[i]) {
+					int change = getRandomNumber(0, 1);
+					if (change) {
 						answer[i].setString(to_string(first_n[i] - second_n[i]));
-						answer_r[i] = true; 
+						answer_r[i] = true;
 						answer_n[i] = true;
 						cout << answer_r[i] << endl;
 						//system("pause");
@@ -330,19 +332,19 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 						answer_r[i] = false;
 						answer_n[i] = true;
 						cout << answer_r[i] << endl;
-						//system("pause");
-						}
+
+					}
 
 					flag_game_wait_mouse[i] = true;
 				}
-		    }		
+			}
 		}
 
 		for (int i = 0; i < count_ball; i++) {
 			if (!end_game[i]) {
-				if (abs(timer - end[i]) > 750000 && end[i] && answer_n[i]) {
+				if (abs(timer - end[i]) > 1500000 && end[i] && answer_n[i]) {
 					answer[i].setString("");
-					answer_n[i] = false;						
+					answer_n[i] = false;
 					flag_game_wait_mouse[i] = false;
 				}
 			}
@@ -358,15 +360,13 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 							circle_game[i].setFillColor(sf::Color(0x00, 0x00, 0xff));
 							result_p[i] = 1;
 							end_game[i] = true;
-							cout << answer_r[i] << endl;
-							//system("pause");
+
 						}
 						else {
 							circle_game[i].setFillColor(sf::Color(0xff, 0x00, 0x00));
 							result_p[i] = 0;
 							end_game[i] = true;
-							//cout << answer_r[i] << endl;
-							//system("pause");							
+
 						}
 					}
 				}
@@ -378,7 +378,7 @@ int game_scene(sf::Event event, sf::RenderWindow &window)
 		}
 		if (game_end) break;
 	}
-	
+}
 	// END Code game //
 	error = tobii_eye_position_normalized_unsubscribe(device);
 	assert(error == TOBII_ERROR_NO_ERROR);
