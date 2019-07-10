@@ -35,11 +35,6 @@ int main() {
 		}
 		sf::RenderWindow &windowN = window;
 		menu(event, windowN);
-		
-		
-
-
 	}
-	
 	return 0;
 }
